@@ -18,9 +18,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final number = value.round().toString();
     final buffer = StringBuffer();
     for (int i = 0; i < number.length; i++) {
-      final reverseIndex = number.length - i;
       buffer.write(number[i]);
-      if (reverseIndex > 1 && reverseIndex % 3 == 1) {
+      final reverseIndex = number.length - i - 1;
+      if (reverseIndex > 0 && reverseIndex % 3 == 0) {
         buffer.write('.');
       }
     }
@@ -29,9 +29,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _placeOrder() async {
     final cart = context.read<CartProvider>();
-
-    if (cart.selectedItems.isEmpty) return;
-
+    if (cart.selectedItems.isEmpty) {
+      return;
+    }
     if (_addressController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Vui long nhap dia chi nhan hang')),
@@ -39,26 +39,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
-    await showDialog(
+    await showDialog<void>(
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Dat hang thanh cong'),
-        content: const Text('Don hang cua ban da duoc ghi nhan.'),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
+      builder: (ctx) {
+        return AlertDialog(
+          title: const Text('Dat hang thanh cong'),
+          content: const Text('Don hang cua ban da duoc ghi nhan.'),
+          actions: [
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
     );
 
-    // Xóa sản phẩm đã chọn
     cart.clearSelectedItems();
-
-    if (!mounted) return;
-
-    // Quay về HOME
+    if (!mounted) {
+      return;
+    }
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
@@ -73,7 +73,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return Consumer<CartProvider>(
       builder: (context, cart, _) {
         final selectedItems = cart.selectedItems;
-
         return Scaffold(
           appBar: AppBar(
             title: const Text(
@@ -87,29 +86,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 child: ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    // ================== ADDRESS ==================
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 8,
-                          ),
-                        ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.location_on_outlined),
+                              Icon(Icons.location_on_outlined, size: 20),
                               SizedBox(width: 8),
                               Text(
                                 'Dia chi nhan hang',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
                               ),
                             ],
                           ),
@@ -117,7 +112,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           TextField(
                             controller: _addressController,
                             decoration: InputDecoration(
-                              hintText: 'Nhap dia chi chi tiet...',
+                              hintText: 'Nhap dia chi chi tiet',
                               filled: true,
                               fillColor: const Color(0xFFF4F6FA),
                               border: OutlineInputBorder(
@@ -130,10 +125,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         ],
                       ),
                     ),
-
                     const SizedBox(height: 16),
-
-                    // ================== PAYMENT ==================
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -145,39 +137,42 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.wallet_outlined),
+                              Icon(Icons.wallet_outlined, size: 20),
                               SizedBox(width: 8),
                               Text(
                                 'Phuong thuc thanh toan',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 10),
-
-                          RadioListTile(
-                            value: 'COD',
-                            groupValue: _paymentMethod,
-                            onChanged: (value) {
-                              setState(() => _paymentMethod = value!);
+                          SegmentedButton<String>(
+                            segments: const [
+                              ButtonSegment<String>(
+                                value: 'COD',
+                                label: Text('COD'),
+                                icon: Icon(Icons.local_shipping_outlined),
+                              ),
+                              ButtonSegment<String>(
+                                value: 'Momo',
+                                label: Text('Momo'),
+                                icon: Icon(
+                                  Icons.account_balance_wallet_outlined,
+                                ),
+                              ),
+                            ],
+                            selected: {_paymentMethod},
+                            onSelectionChanged: (values) {
+                              setState(() => _paymentMethod = values.first);
                             },
-                            title: const Text('Thanh toan khi nhan hang (COD)'),
-                          ),
-                          RadioListTile(
-                            value: 'Momo',
-                            groupValue: _paymentMethod,
-                            onChanged: (value) {
-                              setState(() => _paymentMethod = value!);
-                            },
-                            title: const Text('Vi dien tu Momo'),
                           ),
                         ],
                       ),
                     ),
-
-                    const SizedBox(height: 16),
-
-                    // ================== PRODUCT LIST ==================
+                    const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -189,19 +184,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         children: [
                           const Row(
                             children: [
-                              Icon(Icons.receipt_long_outlined),
+                              Icon(Icons.receipt_long_outlined, size: 20),
                               SizedBox(width: 8),
                               Text(
                                 'San pham da chon',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
-
+                          const SizedBox(height: 8),
                           ...selectedItems.map(
-                                (item) => Container(
-                              margin: const EdgeInsets.only(bottom: 10),
+                            (item) => Container(
+                              margin: const EdgeInsets.only(top: 8),
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
                                 color: const Color(0xFFF6F8FC),
@@ -209,7 +206,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  // IMAGE
+                                  // HÌNH ẢNH SẢN PHẨM (Từ nhánh của em)
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(10),
                                     child: Image.network(
@@ -220,33 +217,35 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 10),
-
-                                  // INFO
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           item.product.title,
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
+                                        const SizedBox(height: 4),
                                         Text(
                                           'SL: ${item.quantity} | ${item.size}/${item.color}',
                                           style: TextStyle(
-                                              color: Colors.grey.shade600),
+                                            color: Colors.grey.shade700,
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-
-                                  // PRICE
+                                  const SizedBox(width: 10),
                                   Text(
                                     _formatCurrency(item.subtotal),
                                     style: const TextStyle(
                                       color: Color(0xFFE53935),
-                                      fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ],
@@ -259,44 +258,57 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ],
                 ),
               ),
-
-              // ================== BOTTOM ==================
               Container(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 16,
+                      offset: const Offset(0, -2),
                     ),
                   ],
                 ),
                 child: SafeArea(
+                  top: false,
                   child: Row(
                     children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Tong thanh toan'),
+                            Text(
+                              'Tong thanh toan',
+                              style: TextStyle(
+                                color: Colors.grey.shade700,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 3),
                             Text(
                               _formatCurrency(cart.selectedTotal),
                               style: const TextStyle(
                                 color: Color(0xFFE53935),
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: 17,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      ElevatedButton(
-                        onPressed:
-                        selectedItems.isEmpty ? null : _placeOrder,
-                        child: const Text('Dat hang'),
+                      const SizedBox(width: 12),
+                      ElevatedButton.icon(
+                        onPressed: selectedItems.isEmpty ? null : _placeOrder,
+                        icon: const Icon(Icons.check_circle_outline),
+                        label: const Text('Dat hang'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1F7AE0),
+                          foregroundColor: Colors.white,
+                        ),
                       ),
                     ],
                   ),
