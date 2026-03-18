@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/cart_provider.dart';
-import 'screens/cart/cart_screen.dart';
+import 'screens/home/home_screen.dart';
 
 void main() {
   runApp(const MiniEcommerceApp());
@@ -13,8 +13,10 @@ class MiniEcommerceApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 1. ChangeNotifierProvider bao bọc MaterialApp để cung cấp State cho toàn App
     return ChangeNotifierProvider(
       create: (_) => CartProvider(),
+      // 2. Tham số 'child' phải chứa MaterialApp
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Mini E-Commerce App',
@@ -45,7 +47,9 @@ class MiniEcommerceApp extends StatelessWidget {
             ),
           ),
         ),
-        home: const CartScreen(),
+        // 3. 'home' phải nằm trong MaterialApp. 
+        // Bạn nên để HomeScreen làm màn hình mặc định khi mở app.
+        home: const HomeScreen(), 
       ),
     );
   }
