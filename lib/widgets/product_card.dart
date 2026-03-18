@@ -51,7 +51,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ảnh sản phẩm + badge Mall ở góc trên trái (giống mẫu)
+            // Ảnh sản phẩm + badge Mall ở góc trên trái
             Stack(
               children: [
                 AspectRatio(
@@ -107,56 +107,58 @@ class ProductCard extends StatelessWidget {
                 ),
               ],
             ),
-            // Vùng thông tin sản phẩm
-            Padding(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.title,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
+            
+            // Vùng thông tin sản phẩm (Đã bọc Expanded để chống tràn)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(10, 8, 10, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    _formatPrice(product.price),
-                    style: const TextStyle(
-                      color: Color(0xFFE53935),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 26,
+                    const SizedBox(height: 4),
+                    Text(
+                      _formatPrice(product.price),
+                      style: const TextStyle(
+                        color: Color(0xFFE53935),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16, // ĐÃ GIẢM TỪ 26 XUỐNG 16
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.star,
-                        size: 14,
-                        color: Color(0xFFFFB300),
-                      ),
-                      const SizedBox(width: 2),
-                      Text(
-                        product.rating.toStringAsFixed(1),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.w600,
+                    const Spacer(), // Tự động đẩy phần đánh giá xuống đáy thẻ
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.star,
+                          size: 14,
+                          color: Color(0xFFFFB300),
                         ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Đã bán ${_formatSold(product.soldCount)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                        const SizedBox(width: 2),
+                        Text(
+                          product.rating.toStringAsFixed(1),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[700],
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 1),
-                ],
+                        const Spacer(),
+                        Text(
+                          'Đã bán ${_formatSold(product.soldCount)}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],

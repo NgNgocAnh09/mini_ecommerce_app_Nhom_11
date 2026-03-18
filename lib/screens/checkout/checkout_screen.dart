@@ -15,7 +15,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   String _paymentMethod = 'COD';
 
   String _formatCurrency(double value) {
-    final number = value.round().toString();
+    final double vndValue = value * 23000;
+    final number = vndValue.round().toString();
     final buffer = StringBuffer();
     for (int i = 0; i < number.length; i++) {
       buffer.write(number[i]);
@@ -29,6 +30,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   Future<void> _placeOrder() async {
     final cart = context.read<CartProvider>();
+    
     if (cart.selectedItems.isEmpty) {
       return;
     }
@@ -38,6 +40,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
       return;
     }
+    cart.addOrder(cart.selectedItems, cart.selectedTotal, _addressController.text, _paymentMethod);
+
+  cart.clearSelectedItems();
 
     await showDialog<void>(
       context: context,

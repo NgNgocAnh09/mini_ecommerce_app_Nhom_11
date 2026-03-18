@@ -30,13 +30,15 @@ class CartScreen extends StatelessWidget {
     return shouldRemove ?? false;
   }
 
+  // ĐÃ SỬA LỖI ĐỊNH DẠNG TIỀN TỆ
   String _formatCurrency(double value) {
-    final number = value.round().toString();
+    final double vndValue = value * 23000;
+    final number = vndValue.round().toString();
     final buffer = StringBuffer();
     for (int i = 0; i < number.length; i++) {
-      final reverseIndex = number.length - i;
       buffer.write(number[i]);
-      if (reverseIndex > 1 && reverseIndex % 3 == 1) {
+      final reverseIndex = number.length - i - 1;
+      if (reverseIndex > 0 && reverseIndex % 3 == 0) {
         buffer.write('.');
       }
     }
@@ -251,7 +253,7 @@ class CartScreen extends StatelessWidget {
                                       ),
                                     );
                                   },
-                                  errorBuilder: (_, __, ___) => Container(
+                                  errorBuilder: (_, _, _) => Container(
                                     width: 84,
                                     height: 84,
                                     color: Colors.grey.shade300,
@@ -370,7 +372,7 @@ class CartScreen extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 18,
                       offset: const Offset(0, -3),
                     ),

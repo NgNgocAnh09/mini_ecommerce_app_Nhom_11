@@ -82,6 +82,34 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+
+  // Khai báo thêm danh sách đơn hàng
+final List<Map<String, dynamic>> _orders = [];
+List<Map<String, dynamic>> get orders => _orders;
+
+// Hàm để chuyển từ giỏ hàng sang đơn hàng (gọi khi bấm Đặt hàng thành công)
+void addOrder(List<CartItem> cartItems, double total, String address, String paymentMethod) {
+  _orders.insert(0, {
+    'id': DateTime.now().toString(),
+    'items': cartItems,
+    'total': total,
+    'address': address,
+    'paymentMethod': paymentMethod,
+    'status': 'Chờ xác nhận', // Trạng thái mặc định
+    'date': DateTime.now(),
+  });
+  notifyListeners();
+}
+
+  // Cập nhật trạng thái đơn hàng theo id
+  void updateOrderStatus(String id, String status) {
+    final idx = _orders.indexWhere((o) => o['id'] == id);
+    if (idx >= 0) {
+      _orders[idx]['status'] = status;
+      notifyListeners();
+    }
+  }
+
   bool decreaseQuantity(String id) {
     final item = _findById(id);
     if (item == null) {

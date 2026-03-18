@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import '../../models/product.dart';
 import '../../services/api_service.dart';
 import '../../widgets/product_card.dart';
+import '../detail/product_detail_screen.dart';
+import 'package:provider/provider.dart';
+import '../../providers/cart_provider.dart';
+// Đảm bảo đường dẫn này khớp với tên file Giỏ hàng của em nhé (thường là cart_screen.dart)
+import '../cart/cart_screen.dart';
+import '../order/order_history_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const double _expandedBannerHeight = _originalBannerHeight * 2;
 
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
   final PageController _bannerController = PageController(
     viewportFraction: 0.9,
   );
@@ -35,6 +42,24 @@ class _HomeScreenState extends State<HomeScreen> {
 
   static const int _pageSize = 10;
   Timer? _bannerTimer;
+
+void _runFilter(String enteredKeyword) {
+  List<Product> results = [];
+  if (enteredKeyword.isEmpty) {
+    // Nếu ô tìm kiếm trống, hiển thị 10 sản phẩm đầu như cũ
+    results = _allProducts.take(10).toList();
+  } else {
+    // Lọc sản phẩm theo tên (không phân biệt hoa thường)
+    results = _allProducts
+        .where((user) =>
+            user.title.toLowerCase().contains(enteredKeyword.toLowerCase()))
+        .toList();
+  }
+
+  setState(() {
+    _visibleProducts = results;
+  });
+}
 
   @override
   void initState() {
@@ -188,7 +213,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                     delegate: SliverChildBuilderDelegate((context, index) {
                       final product = _visibleProducts[index];
-                      return ProductCard(product: product, onTap: () {});
+                      return ProductCard(
+    product: product,
+    onTap: () {
+      // Bổ sung lệnh chuyển trang
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ProductDetailScreen(product: product),
+        ),
+      );
+    },
+  );
                     }, childCount: _visibleProducts.length),
                   ),
                 ),
@@ -236,44 +272,63 @@ class _HomeScreenState extends State<HomeScreen> {
       centerTitle: false,
       leadingWidth: 0,
       automaticallyImplyLeading: false,
-      actions: [_buildCartIcon(theme), const SizedBox(width: 8)],
+      actions: [_buildOrdersIcon(theme), _buildCartIcon(theme), const SizedBox(width: 8)],
     );
   }
 
   Widget _buildSearchBar(ThemeData theme) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-      child: Row(
-        children: const [
-          Icon(Icons.search, size: 20, color: Colors.grey),
-          SizedBox(width: 8),
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Tìm sản phẩm',
-                border: InputBorder.none,
-                isDense: true,
-              ),
+  return Container(
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+    child: Row(
+      children: [
+        const Icon(Icons.search, size: 20, color: Colors.grey),
+        const SizedBox(width: 8),
+        Expanded(
+          child: TextField(
+            controller: _searchController, // Gắn bộ điều khiển
+            onChanged: (value) => _runFilter(value), // Gọi hàm lọc khi gõ
+            decoration: const InputDecoration(
+              hintText: 'Tìm sản phẩm',
+              border: InputBorder.none,
+              isDense: true,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+        // Thêm nút xóa nhanh chữ trong ô tìm kiếm cho tiện nhé
+        if (_searchController.text.isNotEmpty)
+          IconButton(
+            icon: const Icon(Icons.clear, size: 18),
+            onPressed: () {
+              _searchController.clear();
+              _runFilter('');
+            },
+          )
+      ],
+    ),
+  );
+}
 
   Widget _buildCartIcon(ThemeData theme) {
-    const int cartCount = 0; // sẽ nối với Provider sau
+    // 1. Dùng context.watch để lắng nghe số lượng thực tế từ CartProvider
+    final cartCount = context.watch<CartProvider>().items.length; 
+    
     return Stack(
       alignment: Alignment.center,
       children: [
         IconButton(
           icon: const Icon(Icons.shopping_cart_outlined, color: Colors.white),
-          onPressed: () {},
+          onPressed: () {
+            // 2. Chuyển sang màn hình Giỏ hàng khi bấm vào
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const CartScreen()),
+            );
+          },
         ),
+        // 3. Chỉ hiện cục màu đỏ nếu có sản phẩm trong giỏ (> 0)
         if (cartCount > 0)
           Positioned(
             right: 6,
@@ -369,6 +424,17 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildOrdersIcon(ThemeData theme) {
+    return IconButton(
+      icon: const Icon(Icons.receipt_long, color: Colors.white),
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const OrderHistoryScreen()),
+        );
+      },
     );
   }
 
