@@ -18,9 +18,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final number = value.round().toString();
     final buffer = StringBuffer();
     for (int i = 0; i < number.length; i++) {
-      final reverseIndex = number.length - i;
       buffer.write(number[i]);
-      if (reverseIndex > 1 && reverseIndex % 3 == 1) {
+      final reverseIndex = number.length - i - 1;
+      if (reverseIndex > 0 && reverseIndex % 3 == 0) {
         buffer.write('.');
       }
     }
@@ -206,6 +206,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               ),
                               child: Row(
                                 children: [
+                                  // HÌNH ẢNH SẢN PHẨM (Từ nhánh của em)
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                    child: Image.network(
+                                      item.product.image,
+                                      width: 50,
+                                      height: 50,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -256,7 +267,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.06),
+                      color: Colors.black.withValues(alpha: 0.06),
                       blurRadius: 16,
                       offset: const Offset(0, -2),
                     ),

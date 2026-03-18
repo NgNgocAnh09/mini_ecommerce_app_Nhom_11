@@ -6,10 +6,13 @@ import '../models/product.dart';
 class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [
     CartItem(
+      id: '1_M_Den', // Đã trả lại id
       product: Product(
         id: 1,
         title: 'Tai nghe Bluetooth Mini Pro',
         price: 259000,
+        rating: 4.8,       // Đã thêm rating
+        soldCount: 120,    // Đã thêm soldCount
         description: 'Tai nghe không dây pin trau, am thanh ro net.',
         category: 'Dien tu',
         image:
@@ -21,10 +24,13 @@ class CartProvider extends ChangeNotifier {
       isSelected: true,
     ),
     CartItem(
+      id: '2_L_Xanh', // Đã trả lại id
       product: Product(
         id: 2,
         title: 'Ao khoac unisex basic',
         price: 349000,
+        rating: 4.5,       // Đã thêm rating
+        soldCount: 85,     // Đã thêm soldCount
         description: 'Chat lieu ni mem, mac thoang va giu form.',
         category: 'Thoi trang',
         image:
@@ -113,6 +119,7 @@ class CartProvider extends ChangeNotifier {
     } else {
       _items.add(
         CartItem(
+          id: key, // Đã trả lại id
           product: product,
           size: size,
           color: color,
