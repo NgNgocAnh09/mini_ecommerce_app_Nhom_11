@@ -1,18 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'providers/cart_provider.dart';
 import 'screens/home/home_screen.dart';
 
 void main() {
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => CartProvider()),
-        // Nếu sau này có thêm UserProvider hay AuthProvider thì thêm ở đây
-      ],
-      child: const MyApp(),
-    ),
-  );
+  runApp(const MyApp()); 
 }
 
 class MyApp extends StatelessWidget {
@@ -20,10 +13,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'TH4 - Nhóm 11', 
-      theme: ThemeData(primarySwatch: Colors.deepOrange),
-      home: const HomeScreen(), // Thành viên 2 sẽ code file này
+    return ChangeNotifierProvider(
+      create: (_) => CartProvider(),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'TH4 - Nhóm 11', 
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
+          useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFFF6F7FB),
+          appBarTheme: const AppBarTheme(
+            centerTitle: false,
+            elevation: 0,
+            backgroundColor: Colors.white,
+            foregroundColor: Color(0xFF1A1C1E),
+          ),
+        ),
+        home: const HomeScreen(), 
+      ),
     );
   }
 }

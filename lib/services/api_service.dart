@@ -7,7 +7,7 @@ class ApiService {
   static const String baseUrl = 'https://fakestoreapi.com';
 
   // Lấy toàn bộ danh sách sản phẩm
-  Future<List<Product>> fetchProducts() async {
+ static Future<List<Product>> fetchProducts() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/products'));
 
